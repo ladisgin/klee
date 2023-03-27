@@ -31,9 +31,10 @@ namespace klee {
 /// @param entryFunction if set, missing functions of the module containing the
 /// entry function will be solved.
 /// @return final module or null in this case errorMsg is set
-std::unique_ptr<llvm::Module>
-linkModules(std::vector<std::unique_ptr<llvm::Module>> &modules,
-            llvm::StringRef entryFunction, std::string &errorMsg);
+void
+linkModules(llvm::Module *composite,
+            std::vector<std::unique_ptr<llvm::Module>> &modules,
+            const unsigned Flags, std::string &errorMsg);
 
 /// Return the Function* target of a Call or Invoke instruction, or
 /// null if it cannot be determined (should be only for indirect
@@ -66,6 +67,10 @@ bool functionEscapes(const llvm::Function *f);
 bool loadFile(const std::string &libraryName, llvm::LLVMContext &context,
               std::vector<std::unique_ptr<llvm::Module>> &modules,
               std::string &errorMsg);
+
+bool loadFileAsOneModule(const std::string &fileName, llvm::LLVMContext &context,
+                               std::vector<std::unique_ptr<llvm::Module>> &modules,
+                               std::string &errorMsg);
 }
 
 #endif /* KLEE_MODULEUTIL_H */
