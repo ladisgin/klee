@@ -10,7 +10,7 @@
 ###############################################################################
 # Minimum CMake version and policies
 ###############################################################################
-cmake_minimum_required(VERSION 3.9.0)
+cmake_minimum_required(VERSION 3.16.0)
 project(KLEE CXX C)
 
 ###############################################################################
@@ -185,10 +185,15 @@ if (NOT EXISTS "${LLVM_AS}")
   message(FATAL_ERROR "Failed to find llvm-as at \"${LLVM_AS}\"")
 endif()
 
+# Check for dynamic linking
+if (LLVM_LINK_LLVM_DYLIB)
+  set(USE_LLVM_SHARED USE_SHARED)
+endif()
+
 ################################################################################
 # C++ version
 ################################################################################
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ################################################################################
@@ -430,8 +435,14 @@ message(STATUS "KLEE_RUNTIME_BUILD_TYPE: ${KLEE_RUNTIME_BUILD_TYPE}")
 include(CheckCSourceRuns)
 cmake_push_check_state()
 set(CMAKE_REQUIRED_FLAGS "-m32")
-check_c_source_runs("int main(int argc, char** argv){return 0;}" M32_SUPPORTED)
+check_c_source_runs("int main(int argc, char** argv){return 0;}" CHECK_M32_SUPPORT)
 cmake_pop_check_state()
+if (NOT CHECK_M32_SUPPORT)
+  set(M32_SUPPORTED 0)
+else()
+  set(M32_SUPPORTED 1)
+endif()
+
 message(STATUS "32bit platform supported: ${M32_SUPPORTED}")
 
 set(KLEE_INSTALL_RUNTIME_DIR "${CMAKE_INSTALL_FULL_LIBDIR}/klee/runtime")
